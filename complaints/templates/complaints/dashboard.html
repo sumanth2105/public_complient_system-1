@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}My Dashboard - Public Complaint System{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <h2>My Complaints</h2>
+    <a href="{% url 'submit_complaint' %}" class="btn">+ New Complaint</a>
+</div>
+
+{% if complaints %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background-color: var(--secondary-color); border-bottom: 2px solid var(--border-color);">
+                <th style="padding: 1rem; text-align: left;">Title</th>
+                <th style="padding: 1rem; text-align: left;">Category</th>
+                <th style="padding: 1rem; text-align: left;">Date Submitted</th>
+                <th style="padding: 1rem; text-align: left;">Status</th>
+                <th style="padding: 1rem; text-align: center;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in complaints %}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 1rem;">{{ complaint.title }}</td>
+                <td style="padding: 1rem;">{{ complaint.category.name|default:"Uncategorized" }}</td>
+                <td style="padding: 1rem;">{{ complaint.created_at|date:"M d, Y" }}</td>
+                <td style="padding: 1rem;">
+                    {% if complaint.status == 'Pending' %}
+                        <span style="background-color: #ffeeba; color: #856404; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold;">Pending</span>
+                    {% elif complaint.status == 'In Progress' %}
+                        <span style="background-color: #b8daff; color: #004085; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold;">In Progress</span>
+                    {% elif complaint.status == 'Resolved' %}
+                        <span style="background-color: #c3e6cb; color: #155724; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold;">Resolved</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 1rem; text-align: center;">
+                    <a href="{% url 'complaint_detail' complaint.id %}" style="color: var(--primary-color); text-decoration: none; font-weight: bold;">View</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <div style="text-align: center; padding: 3rem; background-color: var(--secondary-color); border-radius: 8px;">
+        <h3 style="color: #666;">You haven't submitted any complaints yet.</h3>
+        <p style="color: #888;">If you are facing a civic issue, please submit a new complaint.</p>
+        <a href="{% url 'submit_complaint' %}" class="btn" style="margin-top: 1rem; display: inline-block;">Submit New Complaint</a>
+    </div>
+{% endif %}
+{% endblock %}

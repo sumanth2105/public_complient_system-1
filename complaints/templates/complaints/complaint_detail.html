@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Complaint Details - CivicConnect{% endblock %}
+
+{% block head_extra %}
+{% if complaint.latitude and complaint.longitude %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+    #map { height: 300px; width: 100%; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 0.5rem; }
+</style>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <a href="{% url 'dashboard' %}" style="text-decoration: none; color: var(--primary-color); font-weight: 600;">&larr; Back to Dashboard</a>
+</div>
+
+<div style="background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid var(--border-color);">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0; font-size: 2rem; color: var(--primary-color);">{{ complaint.title }}</h2>
+        <div>
+            {% if complaint.status == 'Pending' %}
+                <span style="background-color: #FEF3C7; color: #92400E; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600;">Pending</span>
+            {% elif complaint.status == 'In Progress' %}
+                <span style="background-color: #DBEAFE; color: #1E40AF; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600;">In Progress</span>
+            {% elif complaint.status == 'Resolved' %}
+                <span style="background-color: #D1FAE5; color: #065F46; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600;">Resolved</span>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div style="margin-bottom: 2rem; display: flex; gap: 2rem; color: var(--text-light); font-size: 0.95rem; font-weight: 500;">
+        <p style="margin:0;"><strong>Category:</strong> {{ complaint.category.name|default:"Uncategorized" }}</p>
+        <p style="margin:0;"><strong>Date Submitted:</strong> {{ complaint.created_at|date:"F d, Y, h:i A" }}</p>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 2rem;">
+        <div style="flex: 1; min-width: 300px;">
+            <div style="margin-bottom: 2rem;">
+                <h4 style="margin-top: 0; color: var(--text-color); font-size: 1.2rem; margin-bottom: 0.5rem;">Description</h4>
+                <p style="white-space: pre-wrap; line-height: 1.6; color: var(--text-color); background: var(--secondary-color); padding: 1.5rem; border-radius: 8px;">{{ complaint.description }}</p>
+            </div>
+
+            <div>
+                <h4 style="margin-top: 0; color: var(--text-color); font-size: 1.2rem; margin-bottom: 0.5rem;">Location Details</h4>
+                <p style="margin-bottom: 1rem; color: var(--text-color); background: var(--secondary-color); padding: 1rem; border-radius: 8px;">{{ complaint.location }}</p>
+                
+                {% if complaint.latitude and complaint.longitude %}
+                    <div id="map"></div>
+                    <script>
+                        var map = L.map('map').setView([{{ complaint.latitude|stringformat:"f" }}, {{ complaint.longitude|stringformat:"f" }}], 15);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '© OpenStreetMap'
+                        }).addTo(map);
+                        L.marker([{{ complaint.latitude|stringformat:"f" }}, {{ complaint.longitude|stringformat:"f" }}]).addTo(map);
+                    </script>
+                {% else %}
+                    <p style="color: var(--text-light); font-style: italic;">No exact map coordinates provided.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if complaint.photo %}
+        <div style="flex: 1; min-width: 300px;">
+            <h4 style="margin-top: 0; color: var(--text-color); font-size: 1.2rem; margin-bottom: 0.5rem;">Attached Photo</h4>
+            <div style="border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color);">
+                <img src="{{ complaint.photo.url }}" alt="Complaint Photo" style="width: 100%; height: auto; display: block;">
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

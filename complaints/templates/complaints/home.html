@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+</div> <!-- Close default container to make hero full width -->
+<div style="background: linear-gradient(rgba(30, 63, 32, 0.8), rgba(30, 63, 32, 0.7)), url('{% static "complaints/img/hero_bg.png" %}'); background-size: cover; background-position: center; padding: 6rem 2rem; text-align: center; color: white; margin-top: -3rem;">
+    <h1 data-aos="fade-up" style="font-size: 3.5rem; font-weight: 700; margin-bottom: 1rem; color: #fff;">Welcome to CivicConnect</h1>
+    <p data-aos="fade-up" data-aos-delay="100" style="font-size: 1.25rem; margin-bottom: 2.5rem; max-width: 600px; margin-left: auto; margin-right: auto; opacity: 0.9;">A smart, eco-friendly platform for citizens to voice their concerns and for authorities to resolve them efficiently.</p>
+    
+    <div data-aos="fade-up" data-aos-delay="200" style="display: flex; justify-content: center; gap: 1rem;">
+        {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn" style="background-color: var(--accent-color); color: #fff; padding: 1rem 2rem; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-decoration: none;">Report an Issue</a>
+            <a href="{% url 'login' %}" class="btn" style="background-color: transparent; color: white; border: 2px solid white; padding: 1rem 2rem; font-size: 1.1rem; text-decoration: none;">Login</a>
+        {% else %}
+            <a href="{% url 'submit_complaint' %}" class="btn" style="background-color: var(--accent-color); color: #fff; padding: 1rem 2rem; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-decoration: none;">Submit New Complaint</a>
+            <a href="{% url 'dashboard' %}" class="btn" style="background-color: transparent; color: white; border: 2px solid white; padding: 1rem 2rem; font-size: 1.1rem; text-decoration: none;">View My Dashboard</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="container" style="margin-top: 3rem;">
+    
+    <div style="text-align: center; margin-bottom: 3rem;" data-aos="fade-up">
+        <h2 style="color: var(--primary-color); font-size: 2rem;">System Statistics</h2>
+        <p style="color: var(--text-light);">Real-time tracking of civic improvements</p>
+    </div>
+
+    <div style="display: flex; justify-content: space-around; text-align: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 5rem;">
+        <div data-aos="zoom-in" data-aos-delay="100" style="flex: 1; min-width: 200px; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-top: 4px solid var(--primary-color); transition: transform 0.3s;">
+            <h3 style="color: var(--text-color); font-size: 3rem; margin: 0; font-weight: 700;">{{ total_count|default:"0" }}</h3>
+            <p style="margin: 0.5rem 0 0 0; color: var(--text-light); font-weight: 600;">Total Reports</p>
+        </div>
+        <div data-aos="zoom-in" data-aos-delay="200" style="flex: 1; min-width: 200px; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-top: 4px solid #059669; transition: transform 0.3s;">
+            <h3 style="color: #059669; font-size: 3rem; margin: 0; font-weight: 700;">{{ resolved_count|default:"0" }}</h3>
+            <p style="margin: 0.5rem 0 0 0; color: var(--text-light); font-weight: 600;">Issues Resolved</p>
+        </div>
+        <div data-aos="zoom-in" data-aos-delay="300" style="flex: 1; min-width: 200px; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-top: 4px solid var(--accent-color); transition: transform 0.3s;">
+            <h3 style="color: var(--accent-color); font-size: 3rem; margin: 0; font-weight: 700;">{{ pending_count|default:"0" }}</h3>
+            <p style="margin: 0.5rem 0 0 0; color: var(--text-light); font-weight: 600;">Issues Pending</p>
+        </div>
+    </div>
+
+    <div style="background: var(--secondary-color); padding: 3rem; border-radius: 12px; margin-bottom: 4rem;" data-aos="fade-up">
+        <h2 style="text-align: center; color: var(--primary-color); margin-bottom: 2rem;">How It Works</h2>
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 250px; text-align: center;">
+                <div style="background: var(--primary-color); color: white; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">1</div>
+                <h4 style="color: var(--text-color);">Spot an Issue</h4>
+                <p style="color: var(--text-light); font-size: 0.95rem;">Find a pothole, broken streetlight, or sanitation issue in your neighborhood.</p>
+            </div>
+            <div style="flex: 1; min-width: 250px; text-align: center;">
+                <div style="background: var(--primary-color); color: white; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">2</div>
+                <h4 style="color: var(--text-color);">Report & Pin</h4>
+                <p style="color: var(--text-light); font-size: 0.95rem;">Upload a photo, describe the issue, and pinpoint the exact location on our map.</p>
+            </div>
+            <div style="flex: 1; min-width: 250px; text-align: center;">
+                <div style="background: var(--primary-color); color: white; width: 50px; height: 50px; line-height: 50px; border-radius: 50%; font-size: 1.5rem; font-weight: bold; margin: 0 auto 1rem;">3</div>
+                <h4 style="color: var(--text-color);">Track Progress</h4>
+                <p style="color: var(--text-light); font-size: 0.95rem;">Monitor the status from your dashboard as local authorities resolve the issue.</p>
+            </div>
+        </div>
+    </div>
+
+    <div data-aos="fade-right">
+        <h2 style="color: var(--primary-color); margin-bottom: 1.5rem;">Why CivicConnect?</h2>
+        <p style="line-height: 1.7; color: var(--text-color); font-size: 1.05rem;">
+            CivicConnect bridges the gap between citizens and local government. By providing a modern, transparent, and easy-to-use platform, we empower communities to take an active role in maintaining and improving their environment. With precise mapping and photo evidence, authorities can dispatch teams faster and resolve issues more efficiently than ever before.
+        </p>
+    </div>
+
+{% endblock %}

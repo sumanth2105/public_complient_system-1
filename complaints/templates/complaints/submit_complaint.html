@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Complaint - CivicConnect{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+    #map { height: 300px; width: 100%; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 0.5rem; }
+    .required:after { content:" *"; color: red; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2 style="font-size: 2rem; color: var(--primary-color);">Report an Issue</h2>
+    <p style="color: var(--text-light);">Please fill out the form below. Providing a photo and exact location helps authorities resolve the issue faster.</p>
+</div>
+
+<form method="post" action="{% url 'submit_complaint' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label class="required" for="{{ form.title.id_for_label }}">Title</label>
+        {{ form.title }}
+    </div>
+
+    <div class="form-group">
+        <label class="required" for="{{ form.category.id_for_label }}">Category</label>
+        {{ form.category }}
+    </div>
+
+    <div class="form-group">
+        <label class="required" for="{{ form.description.id_for_label }}">Description</label>
+        {{ form.description }}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.photo.id_for_label }}">Upload Photo (Optional)</label>
+        {{ form.photo }}
+        <small style="color: var(--text-light); display: block; margin-top: 0.25rem;">Upload an image showing the issue clearly.</small>
+    </div>
+
+    <div class="form-group">
+        <label class="required" for="{{ form.location.id_for_label }}">Location Address</label>
+        {{ form.location }}
+        
+        <label style="margin-top: 1rem;">Pinpoint on Map (Optional but recommended)</label>
+        <div id="map"></div>
+        <small style="color: var(--text-light); display: block; margin-top: 0.25rem;">Click on the map to set the exact coordinates.</small>
+        
+        {{ form.latitude }}
+        {{ form.longitude }}
+    </div>
+    
+    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+        <button type="submit" class="btn">Submit Complaint</button>
+        <a href="{% url 'dashboard' %}" class="btn" style="background-color: white; color: var(--text-color); border: 1px solid var(--border-color); text-decoration: none;">Cancel</a>
+    </div>
+</form>
+
+<script>
+    // Initialize map centered on a default location (e.g., somewhere central or user's location)
+    var map = L.map('map').setView([40.7128, -74.0060], 13); // Default to NYC for example
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    var marker = null;
+    var latInput = document.getElementById('{{ form.latitude.id_for_label }}');
+    var lngInput = document.getElementById('{{ form.longitude.id_for_label }}');
+
+    // If user clicks the map, set marker and update hidden inputs
+    map.on('click', function(e) {
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+        
+        if (marker) {
+            map.removeLayer(marker);
+        }
+        marker = L.marker([lat, lng]).addTo(map);
+        
+        latInput.value = lat;
+        lngInput.value = lng;
+    });
+
+    // Attempt to locate user
+    map.locate({setView: true, maxZoom: 15});
+    map.on('locationfound', function(e) {
+        // We could drop a marker here automatically, but let's just center the map.
+    });
+</script>
+{% endblock %}
