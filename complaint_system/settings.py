@@ -4,7 +4,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-(n9w#chhou2-(&#b)ypwbg+!95vkf!t9kmmobljcpmr130*8$$')
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG = True
 
 allowed_hosts = os.getenv('ALLOWED_HOSTS', '.vercel.app,localhost,127.0.0.1')
 ALLOWED_HOSTS = [host.strip() for host in allowed_hosts.split(',') if host.strip()]

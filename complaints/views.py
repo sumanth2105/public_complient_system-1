@@ -1,8 +1,32 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
-from .forms import UserRegistrationForm, ComplaintForm
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .forms import UserRegistrationForm, ComplaintForm, ComplaintStatusUpdateForm
 from .models import Complaint
+
+
+def is_admin_user(user):
+    return user.is_active and user.is_staff
+
+
+@user_passes_test(is_admin_user)
+def admin_panel_view(request):
+    complaints = Complaint.objects.order_by('-created_at')
+
+    if request.method == 'POST':
+        complaint_id = request.POST.get('complaint_id')
+        complaint = get_object_or_404(Complaint, id=complaint_id)
+        form = ComplaintStatusUpdateForm(request.POST, instance=complaint)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Complaint status updated successfully.')
+        else:
+            messages.error(request, 'Unable to update complaint status. Please try again.')
+        return redirect('admin_panel')
+
+    return render(request, 'complaints/admin_panel.html', {'complaints': complaints})
+
 
 def home_view(request):
     resolved_count = Complaint.objects.filter(status='Resolved').count()
@@ -49,5 +73,8 @@ def submit_complaint_view(request):
 
 @login_required
 def complaint_detail_view(request, complaint_id):
-    complaint = get_object_or_404(Complaint, id=complaint_id, user=request.user)
+    if request.user.is_staff:
+        complaint = get_object_or_404(Complaint, id=complaint_id)
+    else:
+        complaint = get_object_or_404(Complaint, id=complaint_id, user=request.user)
     return render(request, 'complaints/complaint_detail.html', {'complaint': complaint})

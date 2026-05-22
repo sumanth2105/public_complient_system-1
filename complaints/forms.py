@@ -29,3 +29,11 @@ class ComplaintForm(forms.ModelForm):
             'latitude': forms.HiddenInput(),
             'longitude': forms.HiddenInput(),
         }
+
+class ComplaintStatusUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Complaint
+        fields = ['status']
+        widgets = {
+            'status': forms.Select(attrs={'class': 'status-select'}),
+        }
