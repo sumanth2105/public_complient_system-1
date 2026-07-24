@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Department Panel - CivicConnect{% endblock %}
+
+{% block content %}
+<h2>Department Panel</h2>
+<p>Select a department (category) to view and manage complaints for that area.</p>
+
+<form method="get" style="margin: 1rem 0;">
+    <label for="category">Choose Department:</label>
+    <select name="category" id="category" style="padding:0.45rem; margin-left:0.5rem;">
+        <option value="">-- Select --</option>
+        {% for cat in categories %}
+            <option value="{{ cat.id }}" {% if selected_category_id|stringformat:"s" == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="btn">View</button>
+</form>
+
+{% if selected_category_id %}
+    <h3 style="margin-top: 0.5rem;">Complaints for selected department</h3>
+    <table style="width:100%; border-collapse: collapse; margin-top: 1rem;">
+        <thead>
+            <tr style="background: #F3F4F6; text-align: left;">
+                <th style="padding: 0.75rem; border-bottom: 1px solid #E5E7EB;">Title</th>
+                <th style="padding: 0.75rem; border-bottom: 1px solid #E5E7EB;">User</th>
+                <th style="padding: 0.75rem; border-bottom: 1px solid #E5E7EB;">Location</th>
+                <th style="padding: 0.75rem; border-bottom: 1px solid #E5E7EB;">Status</th>
+                <th style="padding: 0.75rem; border-bottom: 1px solid #E5E7EB;">Submitted</th>
+                <th style="padding: 0.75rem; border-bottom: 1px solid #E5E7EB;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in complaints %}
+                <tr style="border-bottom: 1px solid #E5E7EB;">
+                    <td style="padding: 0.75rem; vertical-align: top;">{{ complaint.title }}</td>
+                    <td style="padding: 0.75rem; vertical-align: top;">{{ complaint.user.username }}</td>
+                    <td style="padding: 0.75rem; vertical-align: top;">{{ complaint.location }}</td>
+                    <td style="padding: 0.75rem; vertical-align: top;">
+                        <form method="post" style="display:inline-flex; gap: 0.5rem; align-items: center;">
+                            {% csrf_token %}
+                            <input type="hidden" name="complaint_id" value="{{ complaint.id }}">
+                            <input type="hidden" name="category" value="{{ selected_category_id }}">
+                            <select name="status" class="status-select" style="padding: 0.5rem; border: 1px solid #CBD5E1; border-radius: 6px;">
+                                {% for key, label in complaint.STATUS_CHOICES %}
+                                    <option value="{{ key }}" {% if complaint.status == key %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn" style="padding: 0.45rem 0.85rem;">Update</button>
+                        </form>
+                    </td>
+                    <td style="padding: 0.75rem; vertical-align: top;">{{ complaint.created_at|date:'M d, Y H:i' }}</td>
+                    <td style="padding: 0.75rem; vertical-align: top;"><a href="{% url 'complaint_detail' complaint.id %}" style="color: #1D4ED8; text-decoration: none; font-weight: 600;">View</a></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" style="padding: 1rem; text-align: center; color: #6B7280;">No complaints for this department.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+
+{% endblock %}

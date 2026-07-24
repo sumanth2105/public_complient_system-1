@@ -2,30 +2,192 @@
 
 {% block title %}Login - Public Complaint System{% endblock %}
 
+{% block head_extra %}
+<style>
+    .login-hero {
+        display: grid;
+        gap: 1.5rem;
+        background: linear-gradient(135deg, rgba(45,90,39,0.93), rgba(255,255,255,0.95));
+        padding: 2.5rem 2rem 1.5rem;
+        border-radius: 24px;
+        margin-bottom: 2rem;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+    }
+    .login-hero h2 {
+        margin: 0;
+        font-size: 2.4rem;
+        color: #111827;
+    }
+    .login-hero p {
+        margin: 0;
+        color: #4B5563;
+        max-width: 720px;
+        line-height: 1.75;
+    }
+    .login-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 0.65rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+    }
+    .tab-button {
+        border-radius: 999px;
+        border: 1px solid #D1D5DB;
+        background: #F3F4F6;
+        color: #111827;
+        padding: 0.85rem 1.3rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        font-weight: 600;
+    }
+    .tab-button.active {
+        background: #fff;
+        color: #111827;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+    .login-panel {
+        display: none;
+        background: #fff;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
+        border: 1px solid #E5E7EB;
+    }
+    .login-panel.active {
+        display: block;
+    }
+    .login-panel h3 {
+        margin-top: 0;
+        color: #111827;
+    }
+    .login-note {
+        margin-top: 1.25rem;
+        color: #6B7280;
+        font-size: 0.95rem;
+    }
+    .fill-button {
+        background: #F3F4F6;
+        color: #111827;
+        border: 1px solid #D1D5DB;
+    }
+    .auth-error {
+        background-color: #FEE2E2;
+        color: #991B1B;
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        padding: 1rem 1.15rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<h2>Login to Your Account</h2>
-<p>Please enter your credentials to access your dashboard.</p>
+<div class="login-hero">
+    <div>
+        <h2>Secure multi-role login</h2>
+        <p>Choose Citizen, Admin, or Department access, then sign in with the appropriate credentials. Demo admin and department users are available for testing.</p>
+    </div>
+</div>
 
-<form method="post" action="{% url 'login' %}">
-    {% csrf_token %}
-    
-    {% if form.errors %}
-        <div class="alert" style="background-color: #f8d7da; color: #721c24;">
-            Invalid username or password. Please try again.
+<div class="login-tabs">
+    <button type="button" class="tab-button active" data-target="citizen-panel">Citizen</button>
+    <button type="button" class="tab-button" data-target="admin-panel">Admin</button>
+    <button type="button" class="tab-button" data-target="department-panel">Department</button>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert" style="background-color: #FEE2E2; color: #991B1B; margin-bottom: 1rem; border-radius: 8px; padding: 1rem;">
+            {{ message }}
         </div>
-    {% endif %}
+    {% endfor %}
+{% endif %}
 
-    <div class="form-group">
-        <label for="id_username">Username</label>
-        <input type="text" name="username" autofocus required id="id_username">
-    </div>
-    <div class="form-group">
-        <label for="id_password">Password</label>
-        <input type="password" name="password" required id="id_password">
-    </div>
-    
-    <button type="submit" class="btn">Login</button>
-</form>
+<div class="login-panel active" id="citizen-panel">
+    <h3>Citizen Login</h3>
+    <p>Use your registered account to access the citizen dashboard.</p>
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        <input type="hidden" name="login_type" value="citizen">
+        <div class="form-group">
+            <label for="citizen_username">Username</label>
+            <input type="text" name="username" autofocus required id="citizen_username">
+        </div>
+        <div class="form-group">
+            <label for="citizen_password">Password</label>
+            <input type="password" name="password" required id="citizen_password">
+        </div>
+        <button type="submit" class="btn">Login as Citizen</button>
+    </form>
+</div>
+
+<div class="login-panel" id="admin-panel">
+    <h3>Admin Login</h3>
+    <p>Use the demo admin credentials or your admin account.</p>
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        <input type="hidden" name="login_type" value="admin">
+        <div class="form-group">
+            <label for="admin_username">Username</label>
+            <input type="text" name="username" required id="admin_username">
+        </div>
+        <div class="form-group">
+            <label for="admin_password">Password</label>
+            <input type="password" name="password" required id="admin_password">
+        </div>
+        <button type="button" class="btn fill-button" id="fill-admin-creds">Fill Demo Admin Credentials</button>
+        <button type="submit" class="btn" style="margin-left:0.5rem;">Login as Admin</button>
+    </form>
+</div>
+
+<div class="login-panel" id="department-panel">
+    <h3>Department Login</h3>
+    <p>Use the demo department credentials or your department account.</p>
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        <input type="hidden" name="login_type" value="department">
+        <div class="form-group">
+            <label for="department_username">Username</label>
+            <input type="text" name="username" required id="department_username">
+        </div>
+        <div class="form-group">
+            <label for="department_password">Password</label>
+            <input type="password" name="password" required id="department_password">
+        </div>
+        <button type="button" class="btn fill-button" id="fill-department-creds">Fill Demo Department Credentials</button>
+        <button type="submit" class="btn" style="margin-left:0.5rem;">Login as Department</button>
+    </form>
+</div>
 
 <p style="margin-top: 1rem;">Don't have an account? <a href="{% url 'register' %}">Register here</a>.</p>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabs = document.querySelectorAll('.tab-button');
+        const panels = document.querySelectorAll('.login-panel');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function () {
+                tabs.forEach(btn => btn.classList.remove('active'));
+                panels.forEach(panel => panel.classList.remove('active'));
+
+                this.classList.add('active');
+                const target = document.getElementById(this.dataset.target);
+                if (target) {
+                    target.classList.add('active');
+                }
+            });
+        });
+
+        document.getElementById('fill-admin-creds').addEventListener('click', function () {
+            document.getElementById('admin_username').value = 'demo_admin';
+            document.getElementById('admin_password').value = 'adminpass';
+        });
+
+        document.getElementById('fill-department-creds').addEventListener('click', function () {
+            document.getElementById('department_username').value = 'demo_department';
+            document.getElementById('department_password').value = 'departmentpass';
+        });
+    });
+</script>
 {% endblock %}

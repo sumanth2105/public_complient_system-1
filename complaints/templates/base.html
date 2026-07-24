@@ -139,7 +139,11 @@
             {% if user.is_authenticated %}
                 <span style="font-weight: 300;">Welcome, <strong>{{ user.username }}</strong></span>
                 {% if user.is_staff %}
-                    <a href="{% url 'admin_panel' %}">Admin Panel</a>
+                    <a href="{% url 'admin_panel' %}">Admin Portal</a>
+                {% elif user.groups.all|length > 0 and user.groups.first.name == 'Department' %}
+                    <a href="{% url 'department_panel' %}">Department Portal</a>
+                {% else %}
+                    <a href="{% url 'dashboard' %}">Citizen Dashboard</a>
                 {% endif %}
                 <form action="{% url 'logout' %}" method="post" style="display:inline;">
                     {% csrf_token %}

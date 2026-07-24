@@ -16,7 +16,10 @@ vercel_url = os.getenv('VERCEL_URL')
 if vercel_url:
     ALLOWED_HOSTS.append(vercel_url)
 
-csrf_trusted_origins = os.getenv('CSRF_TRUSTED_ORIGINS', 'https://*.vercel.app')
+csrf_trusted_origins = os.getenv(
+    'CSRF_TRUSTED_ORIGINS',
+    'https://*.vercel.app,http://localhost,http://127.0.0.1,https://localhost,https://127.0.0.1,http://localhost:8000,http://127.0.0.1:8000,https://localhost:8000,https://127.0.0.1:8000'
+)
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in csrf_trusted_origins.split(',')
@@ -24,6 +27,10 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 if vercel_url:
     CSRF_TRUSTED_ORIGINS.append(f'https://{vercel_url}')
+
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -56,6 +63,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
+                'django.template.context_processors.csrf',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
